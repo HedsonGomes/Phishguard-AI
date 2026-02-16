@@ -1,9 +1,8 @@
 import joblib
 import os
 
-# Caminhos absolutos (funciona local + Render)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+# Caminhos absolutos
+BASE_DIR = os.path.dirname(__file__)
 model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"))
 
@@ -12,27 +11,39 @@ def predict_message(message):
 
     X = vectorizer.transform([message])
     probabilities = model.predict_proba(X)[0]
-    predicted_class = model.predict(X)[0]
+    classes = model.classes_
 
-    # Probabilidade máxima
-    confidence = max(probabilities)
+    # Criar dicionário classe → probabilidade
+    prob_dict = dict(zip(classes, probabilities))
 
-    # Converter para percentagem
-    risk_score = int(confidence * 100)
+    # 🔥 RISCO BASEADO APENAS NA PROBABILIDADE DE PHISHING
+    phishing_probability = prob_dict.get("phishing", 0)
 
-    # 🔥 Garantir limite 0–100 (versão segura)
+    risk_score = int(phishing_probability * 100)
+
+    # Garantir limites
     risk_score = max(0, min(100, risk_score))
 
-    # Definir nível de risco baseado na classificação
-    if predicted_class == "Phishing":
+    # Determinar nível de risco
+    if risk_score >= 60:
         risk_level = "high"
-    elif predicted_class == "Spam":
+    elif risk_score >= 30:
         risk_level = "medium"
     else:
         risk_level = "low"
 
+    # Classificação textual bonita
+    predicted_class = model.predict(X)[0]
+
+    if predicted_class == "ham":
+        classification = "Legítimo"
+    elif predicted_class == "spam":
+        classification = "Spam"
+    else:
+        classification = "Phishing"
+
     return {
-        "classification": predicted_class,
+        "classification": classification,
         "risk_score": risk_score,
         "risk_level": risk_level
     }
