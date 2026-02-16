@@ -10,37 +10,32 @@ def home():
     message = ""
 
     if request.method == "POST":
-        message = request.form["message"]
-        prediction = predict_message(message)
+        message = request.form.get("message", "").strip()
 
-        raw_class = prediction["classification"]
-        risk_score = prediction["risk_score"]
+        if message:
+            prediction = predict_message(message)
 
-        # Converter para percentagem
-        risk_percent = round(risk_score * 100)
+            # Probabilidade real de phishing
+            phishing_probability = prediction["phishing_probability"]
 
-        # 🎯 Mapear labels internas para visíveis
-        if raw_class == "ham":
-            classification = "Legítimo"
-            severity = "low"
-            advice = "Mensagem legítima. Nenhuma ação necessária."
+            risk_score = round(phishing_probability * 100)
 
-        elif raw_class == "spam":
-            classification = "Spam"
-            severity = "medium"
-            advice = "Mensagem suspeita. Analise antes de agir."
+            # 🔥 Calibração do risco
+            if risk_score < 35:
+                risk_level = "low"
+                classification = "Legítimo"
+            elif risk_score < 65:
+                risk_level = "medium"
+                classification = "Spam"
+            else:
+                risk_level = "high"
+                classification = "Phishing"
 
-        elif raw_class == "phishing":
-            classification = "Phishing"
-            severity = "high"
-            advice = "Alto risco de phishing. Não clique em links nem forneça dados."
-
-        result = {
-            "classification": classification,
-            "risk_score": risk_percent,
-            "severity": severity,
-            "advice": advice
-        }
+            result = {
+                "classification": classification,
+                "risk_score": risk_score,
+                "risk_level": risk_level
+            }
 
     return render_template("index.html", result=result, message=message)
 
