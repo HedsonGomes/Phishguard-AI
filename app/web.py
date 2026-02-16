@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from detector import predict_message
+from app.detector import predict_message
 
 app = Flask(__name__)
 
