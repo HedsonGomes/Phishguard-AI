@@ -2,109 +2,111 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>PHISHGUARD AI | SOC Dashboard</title>
+    <title>PhishGuard AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
         body {
-            margin: 0;
+            background: #0b1c1f;
             font-family: Arial, sans-serif;
-            background-color: #050a0e;
-            color: #ffffff;
+            color: #fff;
+            margin: 0;
+            padding: 0;
         }
 
         header {
-            background-color: #020405;
-            border-bottom: 2px solid #00ff99;
-            padding: 20px 40px;
+            padding: 20px;
+            border-bottom: 1px solid #00ffcc;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
         }
 
-        .logo-text {
-            color: #00ff99;
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 3px;
+        header h1 {
+            color: #00ffcc;
+            margin: 0;
+            font-size: 20px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 60px auto;
-            background-color: #0a1a20;
-            padding: 40px;
+            padding: 30px;
+            border: 1px solid #00ffcc;
             border-radius: 12px;
-            border: 1px solid #00ff99;
+            background: #092327;
         }
 
         textarea {
             width: 100%;
-            padding: 15px;
-            background-color: #000;
-            color: #ffffff;
-            border: 1px solid #00ff99;
-            border-radius: 6px;
+            height: 120px;
+            background: #000;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            border-radius: 8px;
+            padding: 12px;
             resize: none;
-            font-size: 14px;
         }
 
         button {
             width: 100%;
             margin-top: 20px;
-            padding: 15px;
-            background-color: #00ff99;
+            padding: 12px;
+            border-radius: 8px;
             border: none;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 6px;
-            font-size: 15px;
+            background: #00ff99;
+            color: #000;
+            font-size: 16px;
+        }
+
+        button:hover {
+            opacity: 0.9;
         }
 
         .message-box {
-            margin-top: 30px;
+            margin-top: 25px;
             padding: 15px;
-            background-color: #000;
-            border: 1px dashed #00ff99;
-            border-radius: 6px;
-            color: #a0ffe0;
+            border: 1px dashed #00ffcc;
+            border-radius: 8px;
         }
 
         .result {
             margin-top: 20px;
             padding: 20px;
-            border-radius: 6px;
-            border-left: 6px solid;
+            border-radius: 8px;
         }
 
-        /* 🎨 CORES POR NÍVEL */
-        .low {
-            background-color: #063d1f;
-            border-left-color: #00ff99;
+        .result.low {
+            background: rgba(0, 255, 153, 0.15);
+            border-left: 5px solid #00ff99;
         }
 
-        .medium {
-            background-color: #4a3b00;
-            border-left-color: #ffcc00;
+        .result.medium {
+            background: rgba(255, 204, 0, 0.15);
+            border-left: 5px solid #ffcc00;
         }
 
-        .high {
-            background-color: #4a0000;
-            border-left-color: #ff0000;
+        .result.high {
+            background: rgba(255, 0, 0, 0.15);
+            border-left: 5px solid #ff0000;
         }
 
-        /* 🔥 BARRA DE RISCO */
+        /* 🔥 Barra de risco */
         .progress-bar {
             width: 100%;
             height: 18px;
-            background-color: #111;
+            background: #111;
             border-radius: 10px;
-            margin-top: 10px;
             overflow: hidden;
+            margin-top: 10px;
         }
 
         .progress-fill {
             height: 100%;
             transition: width 0.4s ease-in-out;
+            border-radius: 10px;
         }
 
         .progress-fill.low {
@@ -120,33 +122,23 @@
         }
 
         .advice {
-            margin-top: 12px;
+            margin-top: 15px;
             font-style: italic;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 13px;
-            color: #7ddfc1;
         }
     </style>
 </head>
-
 <body>
 
 <header>
-    <div class="logo-text">PHISHGUARD AI</div>
-    <span>SOC Dashboard</span>
+    <h1>🛡 PHISHGUARD AI</h1>
+    <div>SOC Dashboard</div>
 </header>
 
 <div class="container">
     <h2>Deteção de Phishing</h2>
 
-    <form method="post">
-        <textarea name="message" rows="6"
-                  placeholder="Insira a mensagem suspeita...">{{ message }}</textarea>
-
+    <form method="POST">
+        <textarea name="message" placeholder="Insira a mensagem para análise..." required>{{ message }}</textarea>
         <button type="submit">Analisar</button>
     </form>
 
@@ -160,30 +152,26 @@
             <p><strong>Classificação:</strong> {{ result.classification }}</p>
             <p><strong>Risk Score:</strong> {{ result.risk_score }}%</p>
 
-            <!-- 🔥 Barra calibrada -->
             <div class="progress-bar">
                 <div class="progress-fill {{ result.risk_level }}"
-                     style="width: {{ result.risk_score }}%;">
+                     style="width: {{ result.risk_score | min(100) }}%;">
                 </div>
             </div>
 
-            <!-- 🎯 Conselho dinâmico -->
             <div class="advice">
                 {% if result.risk_level == "high" %}
-                    Alto risco de phishing. Não clique em links nem forneça dados.
+                    🔴 Alto risco de phishing. Não clique em links nem forneça dados.
                 {% elif result.risk_level == "medium" %}
-                    Mensagem suspeita. Verifique antes de agir.
+                    🟡 Mensagem suspeita. Verifique antes de agir.
                 {% else %}
-                    Mensagem legítima. Nenhuma ação necessária.
+                    🟢 Mensagem legítima. Nenhuma ação necessária.
                 {% endif %}
             </div>
         </div>
     {% endif %}
 
-    <footer>
-        Autor: <strong>Hedson Gomes</strong> · Projeto Académico · IA & Cibersegurança
-    </footer>
 </div>
 
 </body>
 </html>
+

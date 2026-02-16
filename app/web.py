@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+
     result = None
     message = ""
 
@@ -13,27 +14,31 @@ def home():
         message = request.form.get("message", "").strip()
 
         if message:
+
             prediction = predict_message(message)
 
-            # Probabilidade real de phishing
-            phishing_probability = prediction["phishing_probability"]
+            phishing_prob = prediction["phishing_probability"]
+            spam_prob = prediction["spam_probability"]
+            total_risk = prediction["total_risk"]
 
-            risk_score = round(phishing_probability * 100)
+            risk_percent = round(total_risk * 100)
 
-            # 🔥 Calibração do risco
-            if risk_score < 35:
-                risk_level = "low"
-                classification = "Legítimo"
-            elif risk_score < 65:
-                risk_level = "medium"
-                classification = "Spam"
-            else:
-                risk_level = "high"
+            # 🎯 CLASSIFICAÇÃO FINAL
+            if phishing_prob > 0.50:
                 classification = "Phishing"
+                risk_level = "high"
+
+            elif total_risk > 0.50:
+                classification = "Spam"
+                risk_level = "medium"
+
+            else:
+                classification = "Legítimo"
+                risk_level = "low"
 
             result = {
                 "classification": classification,
-                "risk_score": risk_score,
+                "risk_score": risk_percent,
                 "risk_level": risk_level
             }
 
@@ -42,4 +47,5 @@ def home():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
