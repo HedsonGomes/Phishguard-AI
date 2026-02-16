@@ -3,122 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <title>PhishGuard AI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
-            background: #0b1c1f;
+            background-color: #071821;
             font-family: Arial, sans-serif;
-            color: #fff;
+            color: white;
             margin: 0;
             padding: 0;
         }
 
         header {
             padding: 20px;
-            border-bottom: 1px solid #00ffcc;
+            border-bottom: 2px solid #00f5a0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         header h1 {
-            color: #00ffcc;
+            color: #00f5a0;
             margin: 0;
-            font-size: 20px;
         }
 
         .container {
             max-width: 800px;
             margin: 60px auto;
             padding: 30px;
-            border: 1px solid #00ffcc;
+            background: linear-gradient(135deg, #092c3d, #06151d);
             border-radius: 12px;
-            background: #092327;
+            border: 1px solid #00f5a0;
         }
 
         textarea {
             width: 100%;
             height: 120px;
-            background: #000;
-            color: #00ffcc;
-            border: 1px solid #00ffcc;
+            background-color: black;
+            color: white;
+            border: 1px solid #00f5a0;
             border-radius: 8px;
-            padding: 12px;
-            resize: none;
+            padding: 10px;
+            font-size: 14px;
         }
 
         button {
-            width: 100%;
             margin-top: 20px;
+            width: 100%;
             padding: 12px;
-            border-radius: 8px;
+            background-color: #00f5a0;
             border: none;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            background: #00ff99;
-            color: #000;
-            font-size: 16px;
-        }
-
-        button:hover {
-            opacity: 0.9;
         }
 
         .message-box {
-            margin-top: 25px;
+            margin-top: 30px;
             padding: 15px;
-            border: 1px dashed #00ffcc;
+            border: 1px dashed #00f5a0;
             border-radius: 8px;
         }
 
         .result {
             margin-top: 20px;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
         }
 
-        .result.low {
-            background: rgba(0, 255, 153, 0.15);
-            border-left: 5px solid #00ff99;
+        .low {
+            background-color: #073d22;
+            border-left: 6px solid #00ff88;
         }
 
-        .result.medium {
-            background: rgba(255, 204, 0, 0.15);
-            border-left: 5px solid #ffcc00;
+        .medium {
+            background-color: #3d3307;
+            border-left: 6px solid #ffd000;
         }
 
-        .result.high {
-            background: rgba(255, 0, 0, 0.15);
-            border-left: 5px solid #ff0000;
+        .high {
+            background-color: #3d0707;
+            border-left: 6px solid #ff0000;
         }
 
-        /* 🔥 Barra de risco */
         .progress-bar {
             width: 100%;
-            height: 18px;
-            background: #111;
-            border-radius: 10px;
+            background-color: #111;
+            border-radius: 20px;
             overflow: hidden;
-            margin-top: 10px;
+            margin-top: 15px;
+            height: 18px;
         }
 
         .progress-fill {
             height: 100%;
-            transition: width 0.4s ease-in-out;
-            border-radius: 10px;
+            transition: width 0.5s ease;
         }
 
         .progress-fill.low {
-            background: #00ff99;
+            background-color: #00ff88;
         }
 
         .progress-fill.medium {
-            background: #ffcc00;
+            background-color: #ffd000;
         }
 
         .progress-fill.high {
-            background: #ff0000;
+            background-color: #ff0000;
         }
 
         .advice {
@@ -127,18 +118,19 @@
         }
     </style>
 </head>
+
 <body>
 
 <header>
-    <h1>🛡 PHISHGUARD AI</h1>
-    <div>SOC Dashboard</div>
+    <h1>PHISHGUARD AI</h1>
+    <span>SOC Dashboard</span>
 </header>
 
 <div class="container">
     <h2>Deteção de Phishing</h2>
 
     <form method="POST">
-        <textarea name="message" placeholder="Insira a mensagem para análise..." required>{{ message }}</textarea>
+        <textarea name="message" placeholder="Cole aqui a mensagem...">{{ message }}</textarea>
         <button type="submit">Analisar</button>
     </form>
 
@@ -152,19 +144,20 @@
             <p><strong>Classificação:</strong> {{ result.classification }}</p>
             <p><strong>Risk Score:</strong> {{ result.risk_score }}%</p>
 
+            <!-- 🔥 Barra calibrada (backend controla limites) -->
             <div class="progress-bar">
                 <div class="progress-fill {{ result.risk_level }}"
-                     style="width: {{ result.risk_score | min(100) }}%;">
+                     style="width: {{ result.risk_score }}%;">
                 </div>
             </div>
 
             <div class="advice">
                 {% if result.risk_level == "high" %}
-                    🔴 Alto risco de phishing. Não clique em links nem forneça dados.
+                    Alto risco de phishing. Não clique em links nem forneça dados.
                 {% elif result.risk_level == "medium" %}
-                    🟡 Mensagem suspeita. Verifique antes de agir.
+                    Mensagem suspeita. Verifique antes de agir.
                 {% else %}
-                    🟢 Mensagem legítima. Nenhuma ação necessária.
+                    Mensagem legítima. Nenhuma ação necessária.
                 {% endif %}
             </div>
         </div>
@@ -174,4 +167,5 @@
 
 </body>
 </html>
+
 

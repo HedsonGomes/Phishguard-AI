@@ -1,6 +1,7 @@
 import joblib
 import os
 
+# Caminhos absolutos (funciona local + Render)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
@@ -11,23 +12,31 @@ def predict_message(message):
 
     X = vectorizer.transform([message])
     probabilities = model.predict_proba(X)[0]
-    classes = model.classes_
+    predicted_class = model.predict(X)[0]
 
-    prob_dict = dict(zip(classes, probabilities))
+    # Probabilidade máxima
+    confidence = max(probabilities)
 
-    ham_prob = prob_dict.get("ham", 0)
-    spam_prob = prob_dict.get("spam", 0)
-    phishing_prob = prob_dict.get("phishing", 0)
+    # Converter para percentagem
+    risk_score = int(confidence * 100)
 
-    # 🔥 RISCO GLOBAL = Spam + Phishing
-    total_risk = spam_prob + phishing_prob
+    # 🔥 Garantir limite 0–100 (versão segura)
+    risk_score = max(0, min(100, risk_score))
+
+    # Definir nível de risco baseado na classificação
+    if predicted_class == "Phishing":
+        risk_level = "high"
+    elif predicted_class == "Spam":
+        risk_level = "medium"
+    else:
+        risk_level = "low"
 
     return {
-        "ham_probability": float(ham_prob),
-        "spam_probability": float(spam_prob),
-        "phishing_probability": float(phishing_prob),
-        "total_risk": float(total_risk)
+        "classification": predicted_class,
+        "risk_score": risk_score,
+        "risk_level": risk_level
     }
+
 
 
 
