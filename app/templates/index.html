@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>PHISHGUARD AI | SOC Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #050a0e;
+    color: #ffffff;
+}
+
+header {
+    background: #020405;
+    border-bottom: 2px solid #00ff99;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-text {
+    color: #00ff99;
+    font-weight: bold;
+    font-size: 22px;
+    letter-spacing: 2px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 60px auto;
+    background: #0a1a20;
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid #00ff99;
+}
+
+textarea {
+    width: 100%;
+    padding: 15px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #00ff99;
+    border-radius: 6px;
+    resize: none;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background: #00ff99;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.message-box {
+    margin-top: 30px;
+    padding: 15px;
+    background: #000;
+    border: 1px dashed #00ff99;
+    border-radius: 6px;
+    color: #a0ffe0;
+}
+
+.result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+/* Níveis */
+.safe {
+    background: #062e1f;
+    border-left: 6px solid #00ff99;
+}
+
+.medium {
+    background: #3a2f00;
+    border-left: 6px solid #ffc107;
+}
+
+.danger {
+    background: #2a0000;
+    border-left: 6px solid red;
+}
+
+/* Barra */
+.progress-bar {
+    margin-top: 15px;
+    height: 18px;
+    background: #111;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 13px;
+    color: #7ddfc1;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <div>🛡️</div>
+        <div class="logo-text">PHISHGUARD AI</div>
+    </div>
+    <span>SOC Dashboard</span>
+</header>
+
+<div class="container">
+
+<h2>Deteção de Phishing</h2>
+
+<form method="post">
+    <textarea name="message" rows="6"
+        placeholder="Insira a mensagem suspeita...">{{ message }}</textarea>
+    <button type="submit">Analisar</button>
+</form>
+
+{% if result %}
+
+<div class="message-box">
+    <strong>Mensagem analisada:</strong>
+    <p>{{ message }}</p>
+</div>
+
+{% set score = result.risk_score %}
+{% set percentage = score * 100 %}
+
+{% if result.severity == "low" %}
+    {% set level = "safe" %}
+    {% set advice = "Mensagem considerada segura. Nenhuma ação necessária." %}
+{% elif result.severity == "medium" %}
+    {% set level = "medium" %}
+    {% set advice = "Mensagem suspeita. Analise antes de agir." %}
+{% else %}
+    {% set level = "danger" %}
+    {% set advice = "Alto risco de phishing. Não clique nem forneça dados." %}
+{% endif %}
+
+<div class="result {{ level }}">
+    <p><strong>Classificação:</strong> {{ result.classification }}</p>
+    <p><strong>Risk Score:</strong> {{ result.risk_score }}</p>
+
+    <div class="progress-bar">
+        <div class="progress-fill"
+            style="width: {{ percentage }}%;
+                   background:
+                   {% if level == 'safe' %}#00ff99
+                   {% elif level == 'medium' %}#ffc107
+                   {% else %}red{% endif %};">
+        </div>
+    </div>
+
+    <p style="margin-top:15px;"><em>{{ advice }}</em></p>
+</div>
+
+{% endif %}
+
+<footer>
+Autor: <strong>Hedson Gomes</strong> · Projeto Académico · IA & Cibersegurança
+</footer>
+
+</div>
+</body>
+</html>
