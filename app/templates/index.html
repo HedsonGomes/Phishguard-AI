@@ -2,34 +2,36 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>PHISHGUARD AI</title>
+    <title>PHISHGUARD AI | SOC Dashboard</title>
 
     <style>
         body {
             margin: 0;
-            font-family: Arial;
-            background: #050a0e;
-            color: white;
+            font-family: Arial, sans-serif;
+            background-color: #050a0e;
+            color: #ffffff;
         }
 
         header {
-            background: #020405;
-            padding: 20px 40px;
+            background-color: #020405;
             border-bottom: 2px solid #00ff99;
+            padding: 20px 40px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
         }
 
-        .logo {
-            font-weight: bold;
+        .logo-text {
             color: #00ff99;
+            font-size: 22px;
+            font-weight: bold;
             letter-spacing: 3px;
         }
 
         .container {
             max-width: 900px;
             margin: 60px auto;
-            background: #0a1a20;
+            background-color: #0a1a20;
             padding: 40px;
             border-radius: 12px;
             border: 1px solid #00ff99;
@@ -38,27 +40,30 @@
         textarea {
             width: 100%;
             padding: 15px;
-            background: black;
-            color: white;
+            background-color: #000;
+            color: #ffffff;
             border: 1px solid #00ff99;
             border-radius: 6px;
+            resize: none;
+            font-size: 14px;
         }
 
         button {
             width: 100%;
             margin-top: 20px;
             padding: 15px;
-            background: #00ff99;
+            background-color: #00ff99;
             border: none;
             font-weight: bold;
-            border-radius: 6px;
             cursor: pointer;
+            border-radius: 6px;
+            font-size: 15px;
         }
 
         .message-box {
             margin-top: 30px;
             padding: 15px;
-            background: black;
+            background-color: #000;
             border: 1px dashed #00ff99;
             border-radius: 6px;
             color: #a0ffe0;
@@ -67,40 +72,57 @@
         .result {
             margin-top: 20px;
             padding: 20px;
-            border-left: 6px solid;
             border-radius: 6px;
+            border-left: 6px solid;
         }
 
+        /* 🎨 CORES POR NÍVEL */
         .low {
-            background: #062b15;
-            border-color: #00ff99;
+            background-color: #063d1f;
+            border-left-color: #00ff99;
         }
 
         .medium {
-            background: #3a2f00;
-            border-color: #ffd000;
+            background-color: #4a3b00;
+            border-left-color: #ffcc00;
         }
 
         .high {
-            background: #330000;
-            border-color: red;
+            background-color: #4a0000;
+            border-left-color: #ff0000;
         }
 
-        .bar-container {
+        /* 🔥 BARRA DE RISCO */
+        .progress-bar {
             width: 100%;
-            background: #111;
-            border-radius: 20px;
-            margin-top: 10px;
-        }
-
-        .bar {
             height: 18px;
-            border-radius: 20px;
+            background-color: #111;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
         }
 
-        .bar.low { background: #00ff99; }
-        .bar.medium { background: #ffd000; }
-        .bar.high { background: red; }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .progress-fill.low {
+            background: #00ff99;
+        }
+
+        .progress-fill.medium {
+            background: #ffcc00;
+        }
+
+        .progress-fill.high {
+            background: #ff0000;
+        }
+
+        .advice {
+            margin-top: 12px;
+            font-style: italic;
+        }
 
         footer {
             text-align: center;
@@ -114,8 +136,8 @@
 <body>
 
 <header>
-    <div class="logo">🛡️ PHISHGUARD AI</div>
-    <div>SOC Dashboard</div>
+    <div class="logo-text">PHISHGUARD AI</div>
+    <span>SOC Dashboard</span>
 </header>
 
 <div class="container">
@@ -123,7 +145,7 @@
 
     <form method="post">
         <textarea name="message" rows="6"
-            placeholder="Insira a mensagem suspeita...">{{ message }}</textarea>
+                  placeholder="Insira a mensagem suspeita...">{{ message }}</textarea>
 
         <button type="submit">Analisar</button>
     </form>
@@ -134,17 +156,27 @@
             <p>{{ message }}</p>
         </div>
 
-        <div class="result {{ result.severity }}">
+        <div class="result {{ result.risk_level }}">
             <p><strong>Classificação:</strong> {{ result.classification }}</p>
             <p><strong>Risk Score:</strong> {{ result.risk_score }}%</p>
 
-            <div class="bar-container">
-                <div class="bar {{ result.severity }}"
+            <!-- 🔥 Barra calibrada -->
+            <div class="progress-bar">
+                <div class="progress-fill {{ result.risk_level }}"
                      style="width: {{ result.risk_score }}%;">
                 </div>
             </div>
 
-            <p style="margin-top:15px;"><em>{{ result.advice }}</em></p>
+            <!-- 🎯 Conselho dinâmico -->
+            <div class="advice">
+                {% if result.risk_level == "high" %}
+                    Alto risco de phishing. Não clique em links nem forneça dados.
+                {% elif result.risk_level == "medium" %}
+                    Mensagem suspeita. Verifique antes de agir.
+                {% else %}
+                    Mensagem legítima. Nenhuma ação necessária.
+                {% endif %}
+            </div>
         </div>
     {% endif %}
 
